@@ -49,10 +49,13 @@ def get_random_color():
 
 class Cap:
 
+    ACCELERATION = -100
+
     def __init__(self):
         self.coordinates = get_random_coordinates()
         self.moving_direction = get_random_direction()
         self.speed = Cap.get_random_speed()
+        self.acceleration = Cap.ACCELERATION
         self.color = get_random_color()
         self.radius = Cap.get_random_radius()
 
@@ -72,6 +75,12 @@ class Cap:
         return f"Cap({x}, {y})({dx:.2f}, {dy:.2f})"
 
     def update(self, frame_time_s):
+        self.speed += self.acceleration * frame_time_s
+        if self.speed < 0:
+            self.speed = 0
+            self.acceleration = 0
+        elif self.speed > 0:
+            self.acceleration = Cap.ACCELERATION
         self.coordinates += self.moving_direction * self.speed * frame_time_s
         # x borders
         if self.coordinates.x < self.radius:
@@ -146,34 +155,9 @@ class CapsGame:
             # logic
             frame_time_ms = self.clock.tick(CapsGame.MAX_FPS)
             frame_time_s = frame_time_ms / 1000.
-
             current_fps = self.clock.get_fps()
 
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    self.stop()
-                elif event.type == KEYDOWN:
-                    if event.key == K_ESCAPE:
-                        self.stop()
-                    elif event.key == K_SPACE:
-                        self.is_paused = not self.is_paused
-                    elif event.key == K_d:
-                        DRAW_DEBUG = not DRAW_DEBUG
-                elif event.type == MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        mouse_x, mouse_y = pygame.mouse.get_pos()
-                        mouse_coordinates = Vector(mouse_x, mouse_y)
-                        for cap in self.caps:
-                            new_direction_vector = -(mouse_coordinates - cap.coordinates)
-                            new_direction_vector.normalize_ip()
-                            cap.moving_direction = new_direction_vector
-                    elif event.button == 3:
-                        mouse_x, mouse_y = pygame.mouse.get_pos()
-                        mouse_coordinates = Vector(mouse_x, mouse_y)
-                        for cap in self.caps:
-                            new_direction_vector = mouse_coordinates - cap.coordinates
-                            new_direction_vector.normalize_ip()
-                            cap.moving_direction = new_direction_vector
+            self._handle_events()
 
             # states update
             if not self.is_paused:
@@ -190,16 +174,52 @@ class CapsGame:
             #                 # cap1.moving_direction.normalize_ip()
 
             # graphics
-            render_surface = self.window.get_surface()
-            render_surface.fill(pygame.Color("white"))
-            for cap in self.caps:
-                cap.draw(render_surface)
-            if DRAW_DEBUG:
-                draw_text(str(self.caps), topleft=(10, 10))
-                draw_text(str(int(current_fps)), topleft=(10, 26))
-            if self.is_paused:
-                draw_text("Game is paused", center=(Window.WIDTH//2, Window.HEIGHT//2))
-            pygame.display.update()
+            self._draw_graphics()
+
+    def get_current_fps(self):
+        return int(self.clock.get_fps())
+
+    def _handle_events(self):
+        global DRAW_DEBUG
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                self.stop()
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    self.stop()
+                elif event.key == K_SPACE:
+                    self.is_paused = not self.is_paused
+                elif event.key == K_d:
+                    DRAW_DEBUG = not DRAW_DEBUG
+            elif event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    mouse_coordinates = Vector(mouse_x, mouse_y)
+                    for cap in self.caps:
+                        new_direction_vector = -(mouse_coordinates - cap.coordinates)
+                        new_direction_vector.normalize_ip()
+                        cap.moving_direction = new_direction_vector
+                        cap.speed = 500
+                elif event.button == 3:
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    mouse_coordinates = Vector(mouse_x, mouse_y)
+                    for cap in self.caps:
+                        new_direction_vector = mouse_coordinates - cap.coordinates
+                        new_direction_vector.normalize_ip()
+                        cap.moving_direction = new_direction_vector
+                        cap.speed = 500
+
+    def _draw_graphics(self):
+        render_surface = self.window.get_surface()
+        render_surface.fill(pygame.Color("white"))
+        for cap in self.caps:
+            cap.draw(render_surface)
+        if DRAW_DEBUG:
+            draw_text(str(self.caps), topleft=(10, 10))
+            draw_text(str(self.get_current_fps()), topleft=(10, 26))
+        if self.is_paused:
+            draw_text("Game is paused", center=(Window.WIDTH // 2, Window.HEIGHT // 2))
+        pygame.display.update()
 
     def stop(self):
         self.is_running = False
