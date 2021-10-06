@@ -195,7 +195,7 @@ class CapsGame:
             for cap in self.caps:
                 cap.draw(render_surface)
             if DRAW_DEBUG:
-                draw_text(str(self.caps))
+                draw_text(str(self.caps), topleft=(10, 10))
                 draw_text(str(int(current_fps)), topleft=(10, 26))
             if self.is_paused:
                 draw_text("Game is paused", center=(Window.WIDTH//2, Window.HEIGHT//2))
