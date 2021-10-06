@@ -50,7 +50,7 @@ def get_random_color():
 class Cap:
 
     ACCELERATION = -100
-    MAX_SPEED = 1000
+    MAX_SPEED = 750
 
     def __init__(self):
         self.coordinates = get_random_coordinates()
@@ -125,14 +125,20 @@ class Cap:
 
 class Window:
 
+    # WIDTH, HEIGHT = DIMENSIONS = (640, 360)
     WIDTH, HEIGHT = DIMENSIONS = (1280, 720)
+    # WIDTH, HEIGHT = DIMENSIONS = (1920, 1080)
 
     def __init__(self):
+        self.full_screen = False
         self._surface = pygame.display.set_mode(Window.DIMENSIONS)
         pygame.display.set_caption("Caps Game")
 
     def get_surface(self):
         return self._surface
+
+    def toggle_fullscreen(self):
+        pygame.display.toggle_fullscreen()
 
 
 class CapsGame:
@@ -194,6 +200,8 @@ class CapsGame:
                     self.is_paused = not self.is_paused
                 elif event.key == K_d:
                     DRAW_DEBUG = not DRAW_DEBUG
+                elif event.key == K_f:
+                    self.window.toggle_fullscreen()
             elif event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     mouse_x, mouse_y = pygame.mouse.get_pos()
