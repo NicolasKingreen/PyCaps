@@ -50,6 +50,7 @@ def get_random_color():
 class Cap:
 
     ACCELERATION = -100
+    MAX_SPEED = 1000
 
     def __init__(self):
         self.coordinates = get_random_coordinates()
@@ -81,6 +82,8 @@ class Cap:
             self.acceleration = 0
         elif self.speed > 0:
             self.acceleration = Cap.ACCELERATION
+        if self.speed > Cap.MAX_SPEED:
+            self.speed = Cap.MAX_SPEED
         self.coordinates += self.moving_direction * self.speed * frame_time_s
         # x borders
         if self.coordinates.x < self.radius:
@@ -116,7 +119,7 @@ class Cap:
 
     @staticmethod
     def get_random_speed():
-        speed = random.randint(100, 300)
+        speed = random.randint(300, 500)
         return speed
 
 
@@ -199,7 +202,7 @@ class CapsGame:
                         new_direction_vector = -(mouse_coordinates - cap.coordinates)
                         new_direction_vector.normalize_ip()
                         cap.moving_direction = new_direction_vector
-                        cap.speed = 500
+                        cap.speed += min(1., 100/mouse_coordinates.distance_to(cap.coordinates)) * 250
                 elif event.button == 3:
                     mouse_x, mouse_y = pygame.mouse.get_pos()
                     mouse_coordinates = Vector(mouse_x, mouse_y)
@@ -207,7 +210,7 @@ class CapsGame:
                         new_direction_vector = mouse_coordinates - cap.coordinates
                         new_direction_vector.normalize_ip()
                         cap.moving_direction = new_direction_vector
-                        cap.speed = 500
+                        cap.speed += min(1., 100/mouse_coordinates.distance_to(cap.coordinates)) * 250
 
     def _draw_graphics(self):
         render_surface = self.window.get_surface()
