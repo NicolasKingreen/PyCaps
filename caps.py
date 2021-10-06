@@ -9,7 +9,7 @@ pygame.font.init()
 FONT = pygame.font.SysFont(None, 16)
 DRAW_DEBUG = False
 
-CAPS_SPAWNED = 120
+CAPS_SPAWNED = 360
 
 
 def draw_text(text, topleft=None, center=None):
@@ -210,7 +210,7 @@ class CapsGame:
                         new_direction_vector = -(mouse_coordinates - cap.coordinates)
                         new_direction_vector.normalize_ip()
                         cap.moving_direction = new_direction_vector
-                        cap.speed += min(1., 100/mouse_coordinates.distance_to(cap.coordinates)) * 250
+                        cap.speed += min(1., 50/mouse_coordinates.distance_to(cap.coordinates)) * 250
                 elif event.button == 3:
                     mouse_x, mouse_y = pygame.mouse.get_pos()
                     mouse_coordinates = Vector(mouse_x, mouse_y)
@@ -218,7 +218,7 @@ class CapsGame:
                         new_direction_vector = mouse_coordinates - cap.coordinates
                         new_direction_vector.normalize_ip()
                         cap.moving_direction = new_direction_vector
-                        cap.speed += min(1., 100/mouse_coordinates.distance_to(cap.coordinates)) * 250
+                        cap.speed += min(1., 50/mouse_coordinates.distance_to(cap.coordinates)) * 250
 
     def _draw_graphics(self):
         render_surface = self.window.get_surface()
